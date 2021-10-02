@@ -1,10 +1,19 @@
-import React, { useState } from "react";
-import './style.css'
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  updateBinValue,
+  updateDecValue,
+  selectBinValue,
+  selectDecValue,
+} from "./converterSlice";
+import "./style.css";
 
 export const ConverterPage = () => {
-  const [input, setInput] = useState("");
-  const [decVal, setDecVal] = useState(0);
-  let maxLength = input.length === 8;
+  const dispatch = useDispatch();
+  const binValue = useSelector(selectBinValue);
+  const decValue = useSelector(selectDecValue);
+
+  let maxLength = binValue.length === 8;
 
   const handleInputUpdate = (e) => {
     const { value } = e.target;
@@ -18,7 +27,7 @@ export const ConverterPage = () => {
           return;
         }
       }
-      setInput(value);
+      dispatch(updateBinValue(value));
     }
   };
 
@@ -33,40 +42,44 @@ export const ConverterPage = () => {
       const pos = binValue.length - i - 1;
       result += caluclateDecimalvalue(binValue.charAt(i), pos);
     }
-    setDecVal(result);
+    dispatch(updateDecValue(result));
+  };
+
+  const clearFields = (e) => {
+    e.preventDefault();
+    dispatch(updateBinValue(""));
+    dispatch(updateDecValue(0));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    getAnswer(input);
+    getAnswer(binValue);
   };
 
   return (
-    <section className='container'>
+    <section className="container">
       <h2>Convert Binary To Decimal</h2>
       <form onSubmit={handleSubmit}>
         <div>
           <input
             autoFocus={true}
             type="text"
-            value={input}
+            value={binValue}
             onChange={handleInputUpdate}
           />
         </div>
         <div>
-          <input
-            contentEditable={false}
-            type="text"
-            value={decVal}
-            onChange={null}
-          />
+          <input type="text" value={decValue} readOnly />
         </div>
         <div>
-          <button type="submit" disabled={!maxLength}>
-            Convert
-          </button>
+          <button type="submit">Convert</button>
         </div>
       </form>
+      <div>
+        <button type="submit" onClick={clearFields}>
+          Clear
+        </button>
+      </div>
     </section>
   );
 };
